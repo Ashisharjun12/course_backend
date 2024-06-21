@@ -9,9 +9,9 @@ const startServer = async () => {
   //connect to db
   await connectdb();
 
-  app.get("/", (req, res) => {
-    console.log("server is running....👋🏻");
-  });
+  // app.get("/", (req, res) => {
+  //   console.log("server is running....👋🏻");
+  // });
 
   app.listen(port, () => {
     console.log(`server is running at ${port}`);
