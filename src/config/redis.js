@@ -1,5 +1,5 @@
 import { Redis } from "ioredis";
-import { _config } from "./config";
+import { _config } from "./config.js";
 
 const redisClient = () => {
   if (_config.REDIS_URI) {

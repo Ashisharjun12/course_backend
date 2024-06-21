@@ -2,9 +2,10 @@ import express from "express";
 import { fileURLToPath } from "url";
 import path from "path";
 import errorHandler from "./middlewares/ErrorHandler.js";
-import cookieParser from "cookie-parser";
+import cookieParser from "cookie-parser"
 import cors from "cors";
 import userRoute from "./routes/userRoute.js";
+import isLoggedIn from "./middlewares/Auth.js";
 
 //create express app
 const app = express();
@@ -25,6 +26,9 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
+
+
+
 
 //check server
 app.get("/", (req, res) => {
