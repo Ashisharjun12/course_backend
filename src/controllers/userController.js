@@ -5,7 +5,10 @@ import jwt from "jsonwebtoken";
 import { _config } from "../config/config.js";
 import emailHelper from "../utils/EmailHelper.js";
 import createActivationToken from "../Helper/activationToken.js";
-import cookieToken from "../utils/cookieToken.js";
+import cookieToken, {
+  accessTokenOptions,
+  refreshTokenOptions,
+} from "../utils/cookieToken.js";
 import { redis } from "../config/redis.js";
 
 //register user
@@ -133,7 +136,7 @@ const logoutUser = async (req, res, next) => {
     //delete from redis db
     const userId = req.user?._id || "";
 
-    console.log(req.user?._id)
+    console.log(req.user?._id);
 
     redis.del(userId);
 
@@ -146,4 +149,50 @@ const logoutUser = async (req, res, next) => {
   }
 };
 
-export { registerUser, activateUser, loginUser, logoutUser };
+//update accessToken
+
+const updateAccessToken = async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies.refresh_token;
+
+    const decode = jwt.decode(refreshToken, _config.REFRESH_TOKEN); //alway use jwt.decode not jwt.verify
+
+    if (!decode) {
+      return next(createHttpError(400, "colud not have refresh token.."));
+    }
+
+    //get from redis
+    const session = await redis.get(decode.id);
+
+    if (!session) {
+      return next(createHttpError(400, "session expired.."));
+    }
+
+    const user = JSON.parse(session);
+
+    //sign new access token
+
+    const access_Token = jwt.sign({ id: user._id }, _config.ACCESS_TOKEN, {
+      expiresIn: "5m",
+    });
+
+    const refresh_Token = jwt.sign({ id: user._id }, _config.REFRESH_TOKEN, {
+      expiresIn: "3d",
+    });
+
+    //send cookies
+    res.cookie("access_token", access_Token, accessTokenOptions);
+    res.cookie("refresh_token", refresh_Token, refreshTokenOptions);
+
+    res.status(200).json({
+      success: true,
+      access_Token,
+    });
+  } catch (error) {
+    return next(
+      createHttpError(400, "error while updating access Token...", error)
+    );
+  }
+};
+
+export { registerUser, activateUser, loginUser, logoutUser, updateAccessToken };
