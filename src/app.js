@@ -4,6 +4,7 @@ import path from "path";
 import errorHandler from "./middlewares/ErrorHandler.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import userRoute from "./routes/userRoute.js";
 
 //create express app
 const app = express();
@@ -40,6 +41,15 @@ app.get("/health", (req, res) => {
 });
 
 //define routes
+app.use('/api/v1' , userRoute)
+
+
+
+
+
+
+
+
 
 //error handler
 app.use(errorHandler);
