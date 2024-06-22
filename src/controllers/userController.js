@@ -11,6 +11,7 @@ import cookieToken, {
 } from "../utils/cookieToken.js";
 import { redis } from "../config/redis.js";
 
+
 //register user
 const registerUser = async (req, res, next) => {
   try {
@@ -180,6 +181,8 @@ const updateAccessToken = async (req, res, next) => {
       expiresIn: "3d",
     });
 
+    req.user = user;
+
     //send cookies
     res.cookie("access_token", access_Token, accessTokenOptions);
     res.cookie("refresh_token", refresh_Token, refreshTokenOptions);
@@ -195,4 +198,40 @@ const updateAccessToken = async (req, res, next) => {
   }
 };
 
-export { registerUser, activateUser, loginUser, logoutUser, updateAccessToken };
+//get user data
+
+const getUserDetail = async (req, res, next) => {
+  try {
+    const userId = req.user?._id;
+
+
+    const user = await userModel.findById(userId)
+
+    if(!user){
+      return next(createHttpError(400 , "error user not exist"))
+    }
+
+    res.status(200).json({
+      success:true,
+      message:"getting user deatail",
+      user
+    })
+   
+  } catch (error) {
+    return next(
+      createHttpError(400, "error while getting user details..", error)
+    );
+  }
+};
+
+//update user details
+
+
+export {
+  registerUser,
+  activateUser,
+  loginUser,
+  logoutUser,
+  updateAccessToken,
+  getUserDetail,
+};

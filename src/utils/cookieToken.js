@@ -13,7 +13,7 @@ import { redis } from "../config/redis.js";
 
  // Options for cookies
  export const accessTokenOptions = {
-   expires: new Date(Date.now() + accessTokenExpiry * 60 * 601000),
+   expires: new Date(Date.now() + accessTokenExpiry * 60 * 60* 1000),
    maxAge: accessTokenExpiry * 60 * 60 * 1000,
    httpOnly: true,
    sameSite: "lax",
