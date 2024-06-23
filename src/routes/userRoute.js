@@ -1,7 +1,8 @@
 import { Router } from "express";
-import { activateUser, getUserDetail, loginUser, logoutUser, registerUser, updateAccessToken, updatePassword, updateUserDetail } from "../controllers/usercontroller.js";
+import { activateUser, getUserDetail, loginUser, logoutUser, registerUser, updateAccessToken, updateAvatar, updatePassword, updateUserDetail } from "../controllers/usercontroller.js";
 import isLoggedIn from "../middlewares/Auth.js";
 import customrole from "../middlewares/CustomRole.js";
+import {upload}  from "../middlewares/Multer.js" 
 
 const userRoute = Router()
 
@@ -18,6 +19,10 @@ userRoute.get('/logout' ,  isLoggedIn,logoutUser)
 userRoute.get('/user' , isLoggedIn , getUserDetail)
 userRoute.put('/updateUserDetail' , isLoggedIn , updateUserDetail)
 userRoute.put('/updatePassword' , isLoggedIn , updatePassword)
+userRoute.put('/updateAvatar' , isLoggedIn ,upload.fields([{
+    name:'avatar',
+    maxCount:1
+}]), updateAvatar)
 
 
 

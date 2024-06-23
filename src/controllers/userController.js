@@ -296,8 +296,41 @@ const updatePassword = async (req, res, next) => {
 //update avatar
 const updateAvatar = async(req,res,next)=>{
 
-  const files = req.files;
+//   const files = req.files;
+
+
+//   let avatarLocalPath;
+//   if(files && files.avatar){
+//     avatarLocalPath = files.avatar[0].path
+//   }
+
+
+//   if(!avatarLocalPath){
+//     return next(createHttpError(400 , "avatar is required..."))
+
+//   }
+
+//   //upload on cloudinary
+//   const avatarUpload = await uploadOnCloudinary(avatarLocalPath , "avatar")
+
+//   //call db
+
+//   const user = await userModel.findById(req.user?._id)
+
+//  user.avatar={
+//   id:avatarUpload.public_id,
+//   secure_url:avatarUpload.secure_url
   
+//  }
+
+//   await user.save()
+
+//   await redis.set(req.user?._id , JSON.stringify(user))
+
+
+//debug
+
+
 
 }
 
