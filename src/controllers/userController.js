@@ -11,7 +11,6 @@ import cookieToken, {
 } from "../utils/cookieToken.js";
 import { redis } from "../config/redis.js";
 
-
 //register user
 const registerUser = async (req, res, next) => {
   try {
@@ -204,19 +203,17 @@ const getUserDetail = async (req, res, next) => {
   try {
     const userId = req.user?._id;
 
+    const user = await userModel.findById(userId);
 
-    const user = await userModel.findById(userId)
-
-    if(!user){
-      return next(createHttpError(400 , "error user not exist"))
+    if (!user) {
+      return next(createHttpError(400, "error user not exist"));
     }
 
     res.status(200).json({
-      success:true,
-      message:"getting user deatail",
-      user
-    })
-   
+      success: true,
+      message: "getting user deatail",
+      user,
+    });
   } catch (error) {
     return next(
       createHttpError(400, "error while getting user details..", error)
@@ -226,6 +223,83 @@ const getUserDetail = async (req, res, next) => {
 
 //update user details
 
+const updateUserDetail = async (req, res, next) => {
+  try {
+    const { email, name } = req.body;
+
+    const userId = req.user?._id;
+    console.log(userId);
+
+    const user = await userModel.findById(userId);
+
+    if (email && user) {
+      const emailExist = await userModel.find({ email });
+      if (emailExist) {
+        return next(createHttpError(400, "email already exist"));
+      }
+      user.email = email;
+    }
+
+    if (name && user) {
+      user.name = name;
+    }
+
+    await user?.save();
+
+    await redis.set(userId, JSON.stringify(user));
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    return next(createHttpError(400, "error while updating details", error));
+  }
+};
+
+const updatePassword = async (req, res, next) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+
+    if(!oldPassword || !newPassword){
+      return next(createHttpError(400 , "please fill old and new password"))
+    }
+  
+
+    const user = await userModel.findById(req.user?._id).select("+password");
+  
+    if (user.password == undefined) {
+      return next(400, "invalid user");
+    }
+    const isMatchPassword = await user?.isValidatedPassword(oldPassword);
+  
+    if (!isMatchPassword) {
+      return next(createHttpError(400, "invalid password.."));
+    }
+  
+    user.password = newPassword;
+  
+    await user.save();
+
+    await redis.set(req.user?._id , JSON.stringify(user))
+  
+    res.status(200).json({
+      success:true,
+      message:"updating password successfully..",
+      user
+    })
+  } catch (error) {
+    return next(createHttpError(400 , "error while updating password" , error))
+  }
+};
+
+//update avatar
+const updateAvatar = async(req,res,next)=>{
+
+  const files = req.files;
+  
+
+}
 
 export {
   registerUser,
@@ -234,4 +308,7 @@ export {
   logoutUser,
   updateAccessToken,
   getUserDetail,
+  updateUserDetail,
+  updatePassword,
+  updateAvatar
 };
